@@ -49,7 +49,7 @@ Transform any premise into a logically consistent crime investigation. Interroga
 > ### 🚨 **Try It Instantly in Your Browser!**
 > No cloning, terminal commands, or setup required. Launch the live deployment immediately:
 > 
-> # 🌐 [👉 CLICK HERE TO LAUNCH: ai-mystery-room.antideploy.app 👈](https://ai-mystery-room.antideploy.app)
+> # 🌐 [👉 CLICK HERE TO LAUNCH:    ai-mystery-room.antideploy.app 👈](https://ai-mystery-room.antideploy.app)
 > 
 > *Full AI Generation, Dynamic Evidence Room, Interactive Suspect Interrogations, and Automated Scoring are running 24/7 on Antideploy.*
 
