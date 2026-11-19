@@ -73,6 +73,11 @@ class ApiService {
     });
   }
 
+  // Retrieve an existing session
+  async getSession(sessionId) {
+    return this.request(`/sessions/${sessionId}`);
+  }
+
   // Retrieve a single evidence item
   async getEvidence(sessionId, evidenceId) {
     return this.request(`/sessions/${sessionId}/evidence/${evidenceId}`);

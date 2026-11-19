@@ -43,6 +43,25 @@ export async function getSession(req, res, next) {
     if (!session) {
       throw ApiError.notFound('Session not found.');
     }
+
+    let solution = undefined;
+    if (session.status === 'submitted') {
+      const mystery = await Mystery.findById(session.mysteryId).select('+solution');
+      if (mystery && mystery.solution) {
+        const canonicalCulpritId = mystery.solution.culpritId;
+        solution = {
+          culpritId: canonicalCulpritId,
+          culpritName: mystery.suspects.find(s => s.id === canonicalCulpritId)?.name || 'Unknown',
+          motive: mystery.solution.motive,
+          method: mystery.solution.method,
+          opportunity: mystery.solution.opportunity,
+          timelineExplanation: mystery.solution.timelineExplanation,
+          evidenceReasoning: mystery.solution.evidenceReasoning,
+          redHerringExplanation: mystery.solution.redHerringExplanation,
+        };
+      }
+    }
+
     res.status(200).json({
       sessionId: session._id,
       mysteryId: session.mysteryId,
@@ -51,6 +70,7 @@ export async function getSession(req, res, next) {
       bookmarkedEvidenceIds: session.bookmarkedEvidenceIds,
       notes: session.notes,
       verdict: session.verdict,
+      solution,
     });
   } catch (err) {
     next(err);

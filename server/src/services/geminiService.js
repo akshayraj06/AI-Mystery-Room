@@ -114,7 +114,15 @@ Generate a fictional mystery with the following parameters:
 - Tone: ${input.tone || 'Realistic suspense'}
 `;
 
-    const result = await model.generateContent(userPrompt);
+    // Wrap generateContent with a 15-second timeout to gracefully handle API throttling/503 spikes
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Gemini API call timed out after 15s')), 15000)
+    );
+
+    const result = await Promise.race([
+      model.generateContent(userPrompt),
+      timeoutPromise,
+    ]);
     const text = result.response.text();
 
     const cleanedText = text

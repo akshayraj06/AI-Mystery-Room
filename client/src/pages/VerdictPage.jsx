@@ -9,37 +9,13 @@ import { api } from '../services/api';
 
 export default function VerdictPage() {
   const { sessionId } = useParams();
-  const navigate = useNavigate();
 
-  const [session, setSession] = useState(null);
-  const [mystery, setMystery] = useState(null);
   const [selectedSuspectId, setSelectedSuspectId] = useState(null);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [verdictResult, setVerdictResult] = useState(null);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    // When VerdictPage opens, we need the mystery suspects so the user can choose
-    let mounted = true;
-    const fetchSessionAndMystery = async () => {
-      try {
-        // We can inspect the session's mysteryId
-        // In local state, or fetch session
-        // Let's create an endpoint or pass state, or find session
-      } catch (err) {
-        if (mounted) setError(err.message);
-      }
-    };
-    fetchSessionAndMystery();
-    return () => { mounted = false; };
-  }, [sessionId]);
-
-  // Let's make sure we have the mystery details. We can query `/api/v1/sessions/:sessionId/mystery` or retrieve via session.
-  // Wait! Let's check our backend endpoints:
-  // We have `POST /mysteries/:mysteryId/sessions` which returned { sessionId, mysteryId, token, status }.
-  // Let's add a quick helper endpoint `GET /api/v1/sessions/:sessionId` on backend so the client can load the session and its mystery!
-  // Let's check `sessionController.js` and add `GET /sessions/:sessionId` if not present.
   return (
     <VerdictContent
       sessionId={sessionId}
@@ -79,7 +55,7 @@ function VerdictContent({
     const loadData = async () => {
       setLoading(true);
       try {
-        const sessionRes = await fetch(`/api/v1/sessions/${sessionId}`).then(r => r.json());
+        const sessionRes = await api.getSession(sessionId);
         if (sessionRes?.error) throw new Error(sessionRes.error.message);
         if (!mounted) return;
         setSession(sessionRes);
@@ -89,12 +65,13 @@ function VerdictContent({
         setMystery(mysteryRes);
 
         if (sessionRes.status === 'submitted' && sessionRes.verdict) {
-          // If already submitted, reveal verdict
+          // If already submitted, reveal verdict and solution
           setVerdictResult({
             alreadySubmitted: true,
             correct: sessionRes.verdict.isCorrect,
             selectedSuspectId: sessionRes.verdict.selectedSuspectId,
             score: sessionRes.verdict.score,
+            solution: sessionRes.solution,
           });
         }
       } catch (err) {

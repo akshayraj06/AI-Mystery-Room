@@ -13,9 +13,16 @@ export async function connectDB() {
   if (env.MONGODB_URI) {
     try {
       console.log(`[DB] Attempting connection to MongoDB at ${env.MONGODB_URI.replace(/\/\/.*@/, '//***@')}`);
-      await mongoose.connect(env.MONGODB_URI, {
-        serverSelectionTimeoutMS: 3000,
-      });
+      // Race external connection with a 5000ms timeout to prevent hanging on DNS/SRV issues
+      await Promise.race([
+        mongoose.connect(env.MONGODB_URI, {
+          serverSelectionTimeoutMS: 4000,
+          connectTimeoutMS: 4000,
+        }),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Connection timed out after 5000ms')), 5000)
+        ),
+      ]);
       console.log('[DB] Connected successfully to external MongoDB');
       return mongoose.connection;
     } catch (err) {
